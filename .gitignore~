@@ -8,7 +8,6 @@
 *.dll
 *.so
 *.dylib
-fgl-backend
 
 # Test binary, built with `go test -c`
 *.test

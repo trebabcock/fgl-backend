@@ -2,7 +2,7 @@
 
 This is the server for the FGL Database, a terminal based communication platform for the Future Gadget Lab. This started as a joke, but I enjoyed developing it, and my friends enjoyed using it.
 
-You can build the server and [client](https://github.com/trebabcock/fgl-client) to connect to you own server.
+You can build the server and [client]() to connect to you own server.
 
 # Features
 
