@@ -5,10 +5,9 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
-type GadgetReport struct {
+type DebugMessage struct {
 	gorm.Model
 	Author string `json:"author"`
-	Title  string `json:"title"`
 	Body   string `json:"body"`
-	RID    int64  `gorm:"AUTO_INCREMENT" json:"aid"`
+	Time   string `json:"time"`
 }

@@ -12,4 +12,5 @@ require (
 	github.com/mattn/go-runewidth v0.0.9 // indirect
 	github.com/pkg/term v0.0.0-20190109203006-aa71e9d9e942 // indirect
 	golang.org/x/crypto v0.0.0-20200414173820-0848c9571904
+	golang.org/x/net v0.0.0-20190404232315-eb5bcb51f2a3
 )

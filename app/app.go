@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	handler "fgl-backend/app/handler"
-	hub "fgl-backend/app/hub"
 	model "fgl-backend/app/model"
 	db "fgl-backend/db"
 
@@ -41,6 +40,7 @@ func (a *App) Initialize(dbConfig *db.Config) {
 	fmt.Println("Connected to database")
 	fmt.Println("Migrating database...")
 	a.DB = model.DBMigrate(db)
+	fmt.Println("Migrated database")
 	a.Router = mux.NewRouter()
 	a.setRouters()
 }
@@ -68,13 +68,6 @@ func (a *App) setRouters() {
 	a.get("/getupdater", a.sendUpdater)
 
 	//a.Router.HandleFunc("/", handler.SendFile)
-
-	h := hub.NewHub()
-	a.chat("/chat", hub.WsHandler{H: h})
-}
-
-func (a *App) chat(path string, c hub.WsHandler) {
-	a.Router.Handle(path, c)
 }
 
 func (a *App) get(path string, f func(w http.ResponseWriter, r *http.Request)) {
@@ -163,6 +156,6 @@ func (a *App) deleteUser(w http.ResponseWriter, r *http.Request) {
 
 // Run starts the server
 func (a *App) Run(host string) {
-	fmt.Println("Server started")
+	fmt.Println("Server running at", host)
 	log.Fatal(http.ListenAndServe(host, a.Router))
 }
