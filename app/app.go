@@ -107,7 +107,7 @@ func (a *App) receivedMessage(w http.ResponseWriter, r *http.Request) {
 	handler.ReceivedMessage(a.DB, w, r)
 }
 
-func (a *App) getMessages(w http.ResponseWRiter, r *http.Request) {
+func (a *App) getMessages(w http.ResponseWriter, r *http.Request) {
 	handler.GetMessages(a.DB, w, r)
 }
 

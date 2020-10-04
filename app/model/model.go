@@ -8,6 +8,6 @@ import (
 
 // DBMigrate migrates the postgres database
 func DBMigrate(db *gorm.DB) *gorm.DB {
-	db.AutoMigrate(&User{}, &Announcement{}, &LabReport{}, &GadgetReport{}, &DebugMessage{}, &Message{})
+	db.AutoMigrate(&User{}, &Announcement{}, &LabReport{}, &GadgetReport{}, &Message{})
 	return db
 }
