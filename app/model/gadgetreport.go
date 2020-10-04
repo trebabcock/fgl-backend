@@ -10,5 +10,5 @@ type GadgetReport struct {
 	Author string `json:"author"`
 	Title  string `json:"title"`
 	Body   string `json:"body"`
-	RID    int64  `gorm:"AUTO_INCREMENT" json:"aid"`
+	RID    int64  `gorm:"AUTO_INCREMENT" json:"rid"`
 }

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"time"
 
 	model "fgl-backend/app/model"
 
@@ -56,14 +55,4 @@ func ReturnMessageAuthor(m string) string {
 	}
 	messageAuthor := message.Author
 	return messageAuthor
-}
-
-// ReturnMessageTime returns the time of a Message object
-func ReturnMessageTime(m string) time.Time {
-	message := model.Message{}
-	if err := json.Unmarshal([]byte(m), &message); err != nil {
-		fmt.Println("error", err)
-	}
-	messageTime := message.Time
-	return messageTime
 }

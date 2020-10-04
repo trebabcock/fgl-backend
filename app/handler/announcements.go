@@ -50,6 +50,46 @@ func MakeAnnouncement(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	fmt.Println("New Announcement By " + ann.Author + ": " + ann.Title + strconv.Itoa(int(ann.AID)))
 }
 
+// UpdateAnnouncement updates an announcement
+func UpdateAnnouncement(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	id := vars["aid"]
+	ann := getAnnOr404(db, id, w, r)
+	if ann == nil {
+		return
+	}
+
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&ann); err != nil {
+		respondError(w, http.StatusBadRequest, err.Error())
+	}
+	defer r.Body.Close()
+
+	if err := db.Save(&ann).Error; err != nil {
+		respondError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	respondJSON(w, http.StatusOK, ann)
+}
+
+// DeleteAnnouncement deletes an announcement
+func DeleteAnnouncement(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	id := vars["aid"]
+
+	ann := getAnnOr404(db, id, w, r)
+	if ann == nil {
+		return
+	}
+	if err := db.Delete(&ann).Error; err != nil {
+		respondError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	respondJSON(w, http.StatusNoContent, nil)
+}
+
 func getAnnOr404(db *gorm.DB, id string, w http.ResponseWriter, r *http.Request) *model.Announcement {
 	ann := model.Announcement{}
 	idInt, _ := strconv.ParseInt(id, 10, 32)

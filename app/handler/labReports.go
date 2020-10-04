@@ -46,6 +46,46 @@ func MakeLabReport(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	fmt.Println("New Lab Report By " + lab.Author + ": " + lab.Title)
 }
 
+// UpdateLabReport updates an announcement
+func UpdateLabReport(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	id := vars["rid"]
+	lr := getLabOr404(db, id, w, r)
+	if lr == nil {
+		return
+	}
+
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&lr); err != nil {
+		respondError(w, http.StatusBadRequest, err.Error())
+	}
+	defer r.Body.Close()
+
+	if err := db.Save(&lr).Error; err != nil {
+		respondError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	respondJSON(w, http.StatusOK, lr)
+}
+
+// DeleteLabReport deletes an announcement
+func DeleteLabReport(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	id := vars["rid"]
+
+	lr := getLabOr404(db, id, w, r)
+	if lr == nil {
+		return
+	}
+	if err := db.Delete(&lr).Error; err != nil {
+		respondError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	respondJSON(w, http.StatusNoContent, nil)
+}
+
 func getLabOr404(db *gorm.DB, id string, w http.ResponseWriter, r *http.Request) *model.LabReport {
 	lab := model.LabReport{}
 	idInt, _ := strconv.ParseInt(id, 10, 32)
