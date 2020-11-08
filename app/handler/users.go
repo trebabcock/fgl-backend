@@ -55,7 +55,7 @@ func UserLogin(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	RespondJSON(w, http.StatusOK, user.AuthCode)
+	RespondJSON(w, http.StatusOK, user.Username)
 	fmt.Println("user has logged in:", user.Username)
 }
 
@@ -75,8 +75,6 @@ func RegisterUser(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	} else {
 		user.Admin = false
 	}
-
-	user.AuthCode = NewAuthCode(&user)
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), 8)
 	if err != nil {
@@ -143,15 +141,6 @@ func getUserOr404(db *gorm.DB, username string, w http.ResponseWriter, r *http.R
 	user := model.User{}
 	if err := db.First(&user, model.User{Username: username}).Error; err != nil {
 		RespondError(w, http.StatusNotFound, err.Error())
-		return nil
-	}
-	return &user
-}
-
-func getUserFromAuth(db *gorm.DB, authcode string, w http.ResponseWriter, r *http.Request) *model.User {
-	user := model.User{}
-	if err := db.First(&user, model.User{AuthCode: authcode}).Error; err != nil {
-		RespondError(w, http.StatusUnauthorized, err.Error())
 		return nil
 	}
 	return &user

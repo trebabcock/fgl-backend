@@ -1,13 +1,9 @@
 package handler
 
 import (
-	"crypto/sha256"
-	"encoding/binary"
-	"encoding/hex"
 	"fgl-backend/app/model"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/jinzhu/gorm"
 )
@@ -17,16 +13,13 @@ func Authorize(db *gorm.DB, w http.ResponseWriter, r *http.Request) bool {
 
 	r.ParseForm()
 	username := r.Form.Get("username")
-	authcode := r.Form.Get("authcode")
 
 	user := model.User{}
 	if err := db.First(&user, model.User{Username: username}).Error; err != nil {
 		RespondError(w, http.StatusUnauthorized, err.Error())
-		log.Println(username, authcode, err.Error())
 		return false
 	}
-	log.Panicln(username, user.AuthCode == authcode)
-	return user.AuthCode == authcode
+	return true
 }
 
 // CheckAdmin checks if a user has admin status
@@ -42,17 +35,4 @@ func CheckAdmin(db *gorm.DB, w http.ResponseWriter, r *http.Request) bool {
 		return false
 	}
 	return user.Admin
-}
-
-// NewAuthCode creates a new auth code
-func NewAuthCode(user *model.User) string {
-	codehash := sha256.New()
-	codehash.Write([]byte(user.Username))
-	codehash.Write([]byte(user.Password))
-	timeslice := make([]byte, 8)
-	binary.LittleEndian.PutUint64(timeslice, uint64(time.Now().UnixNano()))
-	bytes := []byte{}
-	codehash.Sum(bytes)
-	ret := hex.EncodeToString(bytes)
-	return ret
 }
