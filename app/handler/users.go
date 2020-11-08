@@ -7,7 +7,6 @@ import (
 
 	model "fgl-backend/app/model"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
@@ -56,22 +55,7 @@ func UserLogin(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	claims := &model.Claims{
-		Username: user.Username,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: 0,
-		},
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString([]byte("test_key"))
-	if err != nil {
-		RespondError(w, http.StatusInternalServerError, err.Error())
-		fmt.Println("error generating token")
-		return
-	}
-
-	RespondJSON(w, http.StatusOK, tokenString)
+	RespondJSON(w, http.StatusOK, user.AuthCode)
 	fmt.Println("user has logged in:", user.Username)
 }
 
