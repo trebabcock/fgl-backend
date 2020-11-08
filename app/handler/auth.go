@@ -3,6 +3,7 @@ package handler
 import (
 	"crypto/sha256"
 	"encoding/binary"
+	"encoding/hex"
 	"fgl-backend/app/model"
 	"log"
 	"net/http"
@@ -49,6 +50,8 @@ func NewAuthCode(user *model.User) string {
 	codehash.Write([]byte(user.Password))
 	timeslice := make([]byte, 8)
 	binary.LittleEndian.PutUint64(timeslice, uint64(time.Now().UnixNano()))
-	codehash.Write(timeslice)
-	return string(codehash.Sum(nil))
+	bytes := []byte{}
+	codehash.Sum(bytes)
+	ret := hex.EncodeToString(bytes)
+	return ret
 }
