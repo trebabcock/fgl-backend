@@ -25,6 +25,7 @@ func Authorize(db *gorm.DB, w http.ResponseWriter, r *http.Request) bool {
 		log.Println(username, authcode, err.Error())
 		return false
 	}
+	log.Panicln(username, user.AuthCode == authcode)
 	return user.AuthCode == authcode
 }
 
