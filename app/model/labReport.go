@@ -2,9 +2,11 @@ package model
 
 import (
 	"github.com/jinzhu/gorm"
+	// Dialect for postgres
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
+// LabReport is a lab report
 type LabReport struct {
 	gorm.Model
 	Author  string `json:"author"`

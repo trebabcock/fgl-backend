@@ -13,6 +13,8 @@ type User struct {
 	gorm.Model
 	Username string `gorm:"unique" json:"username"`
 	Password string `json:"password"`
+	AuthCode string `json:"auth"`
+	Admin    bool   `json:"admin"`
 }
 
 // Credentials holds user credentials

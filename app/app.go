@@ -1,13 +1,12 @@
 package app
 
 import (
-	"flag"
 	"fmt"
 	"log"
 	"net/http"
 
 	handler "fgl-backend/app/handler"
-	model "fgl-backend/app/model"
+	"fgl-backend/app/model"
 	db "fgl-backend/db"
 
 	"github.com/gorilla/mux"
@@ -42,41 +41,48 @@ func (a *App) Initialize(dbConfig *db.Config) {
 	a.DB = model.DBMigrate(db)
 	fmt.Println("Migrated database")
 	a.Router = mux.NewRouter()
-	a.setRouters()
+	a.setStaticServe()
+	a.setv1Routers()
 }
 
-func (a *App) setRouters() {
-	flag.Parse()
+func (a *App) setStaticServe() {
+	a.Router.HandleFunc("/", a.serveIndex)
+}
 
-	a.get("/announcement/{aid}", a.getAnnouncement)
-	a.get("/announcements", a.getAnnouncements)
-	a.post("/makeann", a.makeAnnouncement)
-	a.put("/updateannouncement/{aid}", a.updateAnnouncement)
-	a.delete("/deleteannouncement/{aid}", a.deleteAnnouncement)
-	a.get("/labreport/{rid}", a.getLabReport)
-	a.get("/labreports", a.getLabReports)
-	a.post("/makelabreport", a.makeLabReport)
-	a.put("/updatelabreport/{rid}", a.updateLabReport)
-	a.delete("/deletelabreport/{rid}", a.deleteLabReport)
-	a.get("/gadgetreport/{rid}", a.getGadgetReport)
-	a.get("/gadgetreports", a.getGadgetReports)
-	a.post("/makegadgetreport", a.makeGadgetReport)
-	a.put("/updategadgetreport/{rid}", a.updateGadgetReport)
-	a.delete("/deletegadgetreport/{rid}", a.deleteGadgetReport)
-	a.get("/users", a.getAllUsers)
-	a.post("/register", a.registerUser)
-	a.post("/login", a.userLogin)
-	a.get("/users/{username}", a.getUser)
-	a.put("/users/{username}", a.updateUser)
-	a.delete("/users/{username}", a.deleteUser)
+func (a *App) setv1Routers() {
+	a.get("api/v1/announcement/{aid}", a.getAnnouncement)
+	a.get("api/v1/announcements", a.getAnnouncements)
+	a.post("api/v1/makeann", a.makeAnnouncement)
+	a.put("api/v1/updateannouncement/{aid}", a.updateAnnouncement)
+	a.delete("api/v1/deleteannouncement/{aid}", a.deleteAnnouncement)
+	a.get("api/v1/labreport/{rid}", a.getLabReport)
+	a.get("api/v1/labreports", a.getLabReports)
+	a.post("api/v1/makelabreport", a.makeLabReport)
+	a.put("api/v1/updatelabreport/{rid}", a.updateLabReport)
+	a.delete("api/v1/deletelabreport/{rid}", a.deleteLabReport)
+	a.get("api/v1/gadgetreport/{rid}", a.getGadgetReport)
+	a.get("api/v1/gadgetreports", a.getGadgetReports)
+	a.post("api/v1/makegadgetreport", a.makeGadgetReport)
+	a.put("api/v1/updategadgetreport/{rid}", a.updateGadgetReport)
+	a.delete("api/v1/deletegadgetreport/{rid}", a.deleteGadgetReport)
+	a.get("api/v1/users", a.getAllUsers)
+	a.post("api/v1/register", a.registerUser)
+	a.post("api/v1/login", a.userLogin)
+	a.get("api/v1/users/{username}", a.getUser)
+	a.put("api/v1/users/{username}", a.updateUser)
+	a.delete("api/v1/users/{username}", a.deleteUser)
 
-	a.get("/messages", a.getMessages)
-	a.post("/message", a.receivedMessage)
+	a.get("api/v1/messages", a.getMessages)
+	a.post("api/v1/message", a.receivedMessage)
 
-	a.post("/recversion", a.receiveVersion)
-	a.get("/getupdater", a.sendUpdater)
+	a.post("api/v1/recversion", a.receiveVersion)
+	a.get("api/v1/getupdater", a.sendUpdater)
 
 	//a.Router.HandleFunc("/", handler.SendFile)
+}
+
+func (a *App) serveIndex(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "public/index.html")
 }
 
 func (a *App) get(path string, f func(w http.ResponseWriter, r *http.Request)) {

@@ -20,15 +20,15 @@ func ReceiveVersion(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&cVersion); err != nil {
 		fmt.Println("error decoding version:", err)
-		respondError(w, http.StatusBadRequest, err.Error())
+		RespondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 	defer r.Body.Close()
 
 	if needsUpdate(cVersion) {
-		respondJSON(w, http.StatusUpgradeRequired, serverVersion())
+		RespondJSON(w, http.StatusUpgradeRequired, serverVersion())
 	} else {
-		respondJSON(w, http.StatusOK, serverVersion())
+		RespondJSON(w, http.StatusOK, serverVersion())
 	}
 }
 
@@ -61,14 +61,14 @@ func SendUpdater(w http.ResponseWriter, r *http.Request) {
 	updater, err := os.Open("fgl-updater.exe")
 	defer updater.Close()
 	if err != nil {
-		respondError(w, http.StatusNotFound, err.Error())
+		RespondError(w, http.StatusNotFound, err.Error())
 		return
 	}
 	uBytes, err := ioutil.ReadAll(updater)
 	if err != nil {
 		fmt.Println("ReadAll(): ", err)
 	}
-	respondJSON(w, http.StatusOK, uBytes)
+	RespondJSON(w, http.StatusOK, uBytes)
 }
 
 func sendFile(w http.ResponseWriter, r *http.Request) {

@@ -15,20 +15,26 @@ import (
 
 // GetUser returns a user
 func GetUser(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
+	if !Authorize(db, w, r) {
+		return
+	}
 	vars := mux.Vars(r)
 	username := vars["username"]
 	user := getUserOr404(db, username, w, r)
 	if user == nil {
 		return
 	}
-	respondJSON(w, http.StatusOK, user)
+	RespondJSON(w, http.StatusOK, user)
 }
 
 // GetAllUsers returns all users
 func GetAllUsers(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
+	if !Authorize(db, w, r) {
+		return
+	}
 	users := []model.User{}
 	db.Find(&users)
-	respondJSON(w, http.StatusOK, users)
+	RespondJSON(w, http.StatusOK, users)
 }
 
 // UserLogin handles user login
@@ -46,7 +52,7 @@ func UserLogin(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(credentials.Password)); err != nil {
 		fmt.Println("error", err)
-		respondError(w, http.StatusUnauthorized, err.Error())
+		RespondError(w, http.StatusUnauthorized, err.Error())
 		return
 	}
 
@@ -60,12 +66,12 @@ func UserLogin(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString([]byte("test_key"))
 	if err != nil {
-		respondError(w, http.StatusInternalServerError, err.Error())
+		RespondError(w, http.StatusInternalServerError, err.Error())
 		fmt.Println("error generating token")
 		return
 	}
 
-	respondJSON(w, http.StatusOK, tokenString)
+	RespondJSON(w, http.StatusOK, tokenString)
 	fmt.Println("user has logged in:", user.Username)
 }
 
@@ -75,10 +81,18 @@ func RegisterUser(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&user); err != nil {
 		fmt.Println("error decoding user information:", err)
-		respondError(w, http.StatusBadRequest, err.Error())
+		RespondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 	defer r.Body.Close()
+
+	if user.Username == "LM-003" || user.Username == "LM-001" {
+		user.Admin = true
+	} else {
+		user.Admin = false
+	}
+
+	user.AuthCode = NewAuthCode(&user)
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), 8)
 	if err != nil {
@@ -87,15 +101,19 @@ func RegisterUser(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	user.Password = string(hashedPassword)
 	if err := db.Save(&user).Error; err != nil {
 		fmt.Println("error saving user to database:", err)
-		respondError(w, http.StatusInternalServerError, err.Error())
+		RespondError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	respondJSON(w, http.StatusCreated, user)
+	RespondJSON(w, http.StatusCreated, user)
+
 	fmt.Println("Registered new user:", user.Username)
 }
 
 // UpdateUser updates user information for specified user
 func UpdateUser(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
+	if !Authorize(db, w, r) {
+		return
+	}
 	vars := mux.Vars(r)
 
 	username := vars["username"]
@@ -106,20 +124,23 @@ func UpdateUser(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&user); err != nil {
-		respondError(w, http.StatusBadRequest, err.Error())
+		RespondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 	defer r.Body.Close()
 
 	if err := db.Save(&user).Error; err != nil {
-		respondError(w, http.StatusInternalServerError, err.Error())
+		RespondError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	respondJSON(w, http.StatusOK, user)
+	RespondJSON(w, http.StatusOK, user)
 }
 
 // DeleteUser deletes specified user
 func DeleteUser(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
+	if !Authorize(db, w, r) {
+		return
+	}
 	vars := mux.Vars(r)
 
 	username := vars["username"]
@@ -128,16 +149,25 @@ func DeleteUser(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err := db.Delete(&user).Error; err != nil {
-		respondError(w, http.StatusInternalServerError, err.Error())
+		RespondError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	respondJSON(w, http.StatusNoContent, nil)
+	RespondJSON(w, http.StatusNoContent, nil)
 }
 
 func getUserOr404(db *gorm.DB, username string, w http.ResponseWriter, r *http.Request) *model.User {
 	user := model.User{}
 	if err := db.First(&user, model.User{Username: username}).Error; err != nil {
-		respondError(w, http.StatusNotFound, err.Error())
+		RespondError(w, http.StatusNotFound, err.Error())
+		return nil
+	}
+	return &user
+}
+
+func getUserFromAuth(db *gorm.DB, authcode string, w http.ResponseWriter, r *http.Request) *model.User {
+	user := model.User{}
+	if err := db.First(&user, model.User{AuthCode: authcode}).Error; err != nil {
+		RespondError(w, http.StatusUnauthorized, err.Error())
 		return nil
 	}
 	return &user

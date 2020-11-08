@@ -12,9 +12,12 @@ import (
 
 // GetMessages returns all messages
 func GetMessages(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
+	if !Authorize(db, w, r) {
+		return
+	}
 	messages := []model.Message{}
 	db.Find(&messages)
-	respondJSON(w, http.StatusOK, messages)
+	RespondJSON(w, http.StatusOK, messages)
 }
 
 // ReceivedMessage handles an incoming message
@@ -24,17 +27,17 @@ func ReceivedMessage(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&message); err != nil {
 		fmt.Println("error decoding message:", err)
-		respondError(w, http.StatusBadRequest, err.Error())
+		RespondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 	defer r.Body.Close()
 
 	if err := db.Save(&message).Error; err != nil {
 		fmt.Println("error saving message:", err)
-		respondError(w, http.StatusInternalServerError, err.Error())
+		RespondError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	respondJSON(w, http.StatusCreated, message)
+	RespondJSON(w, http.StatusCreated, message)
 }
 
 // ReturnMessageBody returns the body of a Message object
