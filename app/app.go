@@ -91,19 +91,7 @@ func (a *App) setv1Routers() {
 }
 
 func (a *App) serveIndex(w http.ResponseWriter, r *http.Request) {
-	keys, ok := r.URL.Query()["code"]
-	if !ok || len(keys[0]) < 1 {
-		//w.Write([]byte(strconv.Itoa(http.StatusUnauthorized) + " Unauthorized"))
-		http.ServeFile(w, r, "public/index.html")
-		return
-	}
-
-	if !handler.AuthorizeCode(a.DB, keys[0]) {
-		//w.Write([]byte(strconv.Itoa(http.StatusUnauthorized) + " Unauthorized"))
-		http.ServeFile(w, r, "public/index.html")
-		return
-	}
-	http.ServeFile(w, r, "public/download.html")
+	http.ServeFile(w, r, "public/index.html")
 }
 
 func (a *App) serveDownload(w http.ResponseWriter, r *http.Request) {
@@ -121,7 +109,7 @@ func (a *App) serveDownload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.ServeFile(w, r, "public/downloading.html")
+	http.ServeFile(w, r, "public/download.html")
 }
 
 func (a *App) downloadClient(w http.ResponseWriter, r *http.Request) {
