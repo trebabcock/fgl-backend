@@ -1,12 +1,10 @@
 package handler
 
 import (
-	"crypto/sha1"
-	"encoding/binary"
-	"encoding/hex"
 	"fgl-backend/app/model"
 	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
 	"time"
 
@@ -47,11 +45,10 @@ func MakeCode(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	aut := model.Authenticator{}
-	codehash := sha1.New()
-	bytes := []byte{}
-	binary.LittleEndian.PutUint64(bytes, uint64(time.Now().UnixNano()))
-	codehash.Write(bytes)
-	ret := hex.EncodeToString(codehash.Sum(nil))
+
+	charset := "qQwWeErRtTyYuUiIoOpPaAsSdDfFgGhHjJkKlLzZxXcCvVbBnNmM1!2@3#4567&890"
+
+	ret := stringWithCharset(25, charset)
 
 	aut.Code = ret
 
@@ -77,4 +74,14 @@ func CheckAdmin(db *gorm.DB, w http.ResponseWriter, r *http.Request) bool {
 		return false
 	}
 	return user.Admin
+}
+
+func stringWithCharset(length int, charset string) string {
+	var seededRand *rand.Rand = rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	b := make([]byte, length)
+	for i := range b {
+		b[i] = charset[seededRand.Intn(len(charset))]
+	}
+	return string(b)
 }
