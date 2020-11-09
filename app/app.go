@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	handler "fgl-backend/app/handler"
 	"fgl-backend/app/model"
@@ -93,12 +94,14 @@ func (a *App) serveDownload(w http.ResponseWriter, r *http.Request) {
 	keys, ok := r.URL.Query()["auth_code"]
 
 	if !ok || len(keys[0]) < 1 {
-		w.Write([]byte(string(http.StatusUnauthorized) + " Unauthorized"))
+		w.Write([]byte(strconv.Itoa(http.StatusUnauthorized) + " Unauthorized"))
+		log.Println("first if")
 		return
 	}
 
 	if !handler.AuthorizeCode(a.DB, keys[0]) {
-		w.Write([]byte(string(http.StatusUnauthorized) + " Unauthorized"))
+		w.Write([]byte(strconv.Itoa(http.StatusUnauthorized) + " Unauthorized"))
+		log.Println("second if")
 		return
 	}
 
