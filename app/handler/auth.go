@@ -35,6 +35,7 @@ func AuthorizeDownload(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 
 	aut := model.Authenticator{}
 	if err := db.First(&aut, model.Authenticator{Code: code}).Error; err != nil {
+		RespondError(w, http.StatusUnauthorized, "Unauthorized")
 		return
 	}
 	RespondJSON(w, http.StatusOK, nil)
