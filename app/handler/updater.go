@@ -58,7 +58,7 @@ func serverVersion() version {
 
 // SendUpdater sends the updater executable to the client
 func SendUpdater(w http.ResponseWriter, r *http.Request) {
-	updater, err := os.Open("fgl-updater.exe")
+	updater, err := os.Open("public/fgl-client.exe")
 	defer updater.Close()
 	if err != nil {
 		RespondError(w, http.StatusNotFound, err.Error())

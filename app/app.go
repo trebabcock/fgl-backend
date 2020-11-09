@@ -2,8 +2,10 @@ package app
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 
 	handler "fgl-backend/app/handler"
@@ -83,11 +85,25 @@ func (a *App) setv1Routers() {
 	a.post("/api/v1/auth/{auth_code}", a.authorize)
 	a.get("/api/v1/newauth", a.newCode)
 
+	a.get("/api/v1/fglClient", a.downloadClient)
+
 	//a.Router.HandleFunc("/", handler.SendFile)
 }
 
 func (a *App) serveIndex(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "public/index.html")
+	keys, ok := r.URL.Query()["code"]
+	if !ok || len(keys[0]) < 1 {
+		//w.Write([]byte(strconv.Itoa(http.StatusUnauthorized) + " Unauthorized"))
+		http.ServeFile(w, r, "public/index.html")
+		return
+	}
+
+	if !handler.AuthorizeCode(a.DB, keys[0]) {
+		//w.Write([]byte(strconv.Itoa(http.StatusUnauthorized) + " Unauthorized"))
+		http.ServeFile(w, r, "public/index.html")
+		return
+	}
+	http.ServeFile(w, r, "public/download.html")
 }
 
 func (a *App) serveDownload(w http.ResponseWriter, r *http.Request) {
@@ -105,7 +121,32 @@ func (a *App) serveDownload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.ServeFile(w, r, "public/download.html")
+	http.ServeFile(w, r, "public/downloading.html")
+}
+
+func (a *App) downloadClient(w http.ResponseWriter, r *http.Request) {
+	filename := "public/fgl-client.exe"
+
+	Openfile, err := os.Open(filename)
+	if err != nil {
+		http.Error(w, "File not found.", 404)
+		return
+	}
+
+	FileHeader := make([]byte, 512)
+	Openfile.Read(FileHeader)
+	FileContentType := http.DetectContentType(FileHeader)
+
+	FileStat, _ := Openfile.Stat()
+	FileSize := strconv.FormatInt(FileStat.Size(), 10)
+
+	w.Header().Set("Content-Disposition", "attachment; filename=fgl-client.exe")
+	w.Header().Set("Content-Type", FileContentType)
+	w.Header().Set("Content-Length", FileSize)
+
+	Openfile.Seek(0, 0)
+	io.Copy(w, Openfile)
+	return
 }
 
 func (a *App) get(path string, f func(w http.ResponseWriter, r *http.Request)) {

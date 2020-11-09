@@ -6,18 +6,30 @@
 		<link href="https://fonts.googleapis.com/css2?family=Oxygen&display=swap" rel="stylesheet"> 
 	</head>
 	<body>
-		<h1>You Have Been Authorized</h1>
-		<br/>
-		<button type="button" name="download" id="download">Download FGL Client</button>
+		<h1>Downloading...</h1>
 	</body>
+	<aside>Your download should start automatically. <a id="dl" href="">Click here</a> if it does not.</aside>
+	<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 	<script>
-		const download = document.getElementById("download");
-		const queryString = window.location.search;
-		const urlParams = new URLSearchParams(queryString);
-		const code = urlParams.get("code");
+		const dl = document.getElementById("dl")
 
-		download.addEventListener("click", (e) => {
-			window.location = "https://fglteam.com/download?code=" + code
+		(function download() {
+    		dl.click();
+		})()
+
+		dl.addEventListener("click", (e) => {
+			axios({
+				url: 'https://fglteam.com/api/v1/fglClient',
+				method: 'GET',
+				responseType: 'blob', // important
+			}).then((response) => {
+				const url = window.URL.createObjectURL(new Blob([response.data]));
+				const link = document.createElement('a');
+				link.href = url;
+				link.setAttribute('download', 'fgl-client.exe');
+				document.body.appendChild(link);
+				link.click();
+			});
 		})
 	</script>
 	<style>
