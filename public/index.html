@@ -23,7 +23,9 @@
 			const data = new FormData(auth);
 			request.open("post", "https://fglteam.com/api/v1/auth/"+data.get("code"))
 			request.onload = function () {
-				console.log(request.status)
+				if (request.status == 200) {
+					window.location = "https://fglteam.com/download?code=" + data.get("code")
+				}
 			}
 
 			request.send()

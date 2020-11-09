@@ -47,6 +47,7 @@ func (a *App) Initialize(dbConfig *db.Config) {
 
 func (a *App) setStaticServe() {
 	a.Router.HandleFunc("/", a.serveIndex)
+	a.Router.HandleFunc("/download", a.serveDownload)
 }
 
 func (a *App) setv1Routers() {
@@ -86,6 +87,22 @@ func (a *App) setv1Routers() {
 
 func (a *App) serveIndex(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "public/index.html")
+}
+
+func (a *App) serveDownload(w http.ResponseWriter, r *http.Request) {
+	keys, ok := r.URL.Query()["auth_code"]
+
+	if !ok || len(keys[0]) < 1 {
+		w.Write([]byte(string(http.StatusUnauthorized) + " Unauthorized"))
+		return
+	}
+
+	if !handler.AuthorizeCode(a.DB, keys[0]) {
+		w.Write([]byte(string(http.StatusUnauthorized) + " Unauthorized"))
+		return
+	}
+
+	http.ServeFile(w, r, "public/download.html")
 }
 
 func (a *App) get(path string, f func(w http.ResponseWriter, r *http.Request)) {
