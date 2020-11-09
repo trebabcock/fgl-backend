@@ -18,18 +18,7 @@
 		})()
 
 		dl.addEventListener("click", (e) => {
-			axios({
-				url: 'https://fglteam.com/api/v1/fglClient',
-				method: 'GET',
-				responseType: 'blob', // important
-			}).then((response) => {
-				const url = window.URL.createObjectURL(new Blob([response.data]));
-				const link = document.createElement('a');
-				link.href = url;
-				link.setAttribute('download', 'fgl-client.exe');
-				document.body.appendChild(link);
-				link.click();
-			});
+			window.location.replace("https://fglteam.com/api/v1/fglClient")
 		})
 	</script>
 	<style>
@@ -49,6 +38,16 @@
 		h1, h2, h3 {
 			line-height:1.2;
 			text-align: center;
+		}
+
+		a, a:visited {
+			color: #f2a365;
+			text-decoration: none;
+		}
+
+		a:hover {
+			color: #f2a365;
+			text-decoration: none;
 		}
 
 		button {
