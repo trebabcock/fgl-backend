@@ -1,10 +1,16 @@
 package handler
 
 import (
+	"crypto/sha1"
+	"encoding/binary"
+	"encoding/hex"
 	"fgl-backend/app/model"
+	"fmt"
 	"log"
 	"net/http"
+	"time"
 
+	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 )
 
@@ -20,6 +26,41 @@ func Authorize(db *gorm.DB, w http.ResponseWriter, r *http.Request) bool {
 		return false
 	}
 	return true
+}
+
+// AuthorizeDownload checks if code is valid
+func AuthorizeDownload(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	code := vars["auth_code"]
+
+	aut := model.Authenticator{}
+	if err := db.First(&aut, model.Authenticator{Code: code}).Error; err != nil {
+		return
+	}
+	RespondJSON(w, http.StatusOK, nil)
+}
+
+// MakeCode creates a new auth code
+func MakeCode(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
+	if !Authorize(db, w, r) {
+		return
+	}
+	aut := model.Authenticator{}
+	codehash := sha1.New()
+	bytes := []byte{}
+	binary.LittleEndian.PutUint64(bytes, uint64(time.Now().UnixNano()))
+	codehash.Write(bytes)
+	ret := hex.EncodeToString(codehash.Sum(nil))
+
+	aut.Code = ret
+
+	if err := db.Save(&aut).Error; err != nil {
+		fmt.Println("error saving authenticator:", err)
+		RespondError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	RespondJSON(w, http.StatusCreated, aut)
+	fmt.Println("New AuthCode Created: " + aut.Code)
 }
 
 // CheckAdmin checks if a user has admin status

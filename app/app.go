@@ -78,6 +78,9 @@ func (a *App) setv1Routers() {
 	a.post("/api/v1/recversion", a.receiveVersion)
 	a.get("/api/v1/getupdater", a.sendUpdater)
 
+	a.post("/api/v1/auth/{auth_code}", a.authorize)
+	a.get("/api/v1/newauth", a.newCode)
+
 	//a.Router.HandleFunc("/", handler.SendFile)
 }
 
@@ -99,6 +102,14 @@ func (a *App) put(path string, f func(w http.ResponseWriter, r *http.Request)) {
 
 func (a *App) delete(path string, f func(w http.ResponseWriter, r *http.Request)) {
 	a.Router.HandleFunc(path, f).Methods("DELETE")
+}
+
+func (a *App) authorize(w http.ResponseWriter, r *http.Request) {
+	handler.AuthorizeDownload(a.DB, w, r)
+}
+
+func (a *App) newCode(w http.ResponseWriter, r *http.Request) {
+	handler.MakeCode(a.DB, w, r)
 }
 
 func (a *App) receiveVersion(w http.ResponseWriter, r *http.Request) {
