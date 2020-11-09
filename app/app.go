@@ -91,7 +91,7 @@ func (a *App) serveIndex(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *App) serveDownload(w http.ResponseWriter, r *http.Request) {
-	keys, ok := r.URL.Query()["auth_code"]
+	keys, ok := r.URL.Query()["code"]
 
 	if !ok || len(keys[0]) < 1 {
 		w.Write([]byte(strconv.Itoa(http.StatusUnauthorized) + " Unauthorized"))
