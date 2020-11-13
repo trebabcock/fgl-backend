@@ -14,7 +14,7 @@ You can build the server and [client](https://github.com/trebabcock/fgl-client) 
 - Gadget Reports
 - Member Reports
 - Interactive shell
-- Group Messaging
+- Group messaging
 
 ### In Development  
 
