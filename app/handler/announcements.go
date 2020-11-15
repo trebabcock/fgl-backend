@@ -36,6 +36,21 @@ func GetAnnouncements(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	RespondJSON(w, http.StatusOK, announcements)
 }
 
+// GetAnnouncementsFromUser gets all announcements from a specific user
+func GetAnnouncementsFromUser(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	user := vars["user"]
+
+	anns := []model.Announcement{}
+
+	if err := db.Find(&anns, model.Announcement{Author: user}).Error; err != nil {
+		RespondError(w, http.StatusNotFound, err.Error())
+		return
+	}
+
+	RespondJSON(w, http.StatusOK, anns)
+}
+
 // MakeAnnouncement creates a new announcement
 func MakeAnnouncement(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	if !Authorize(db, w, r) {

@@ -8,16 +8,22 @@
 	<body>
 		<h1>You Have Been Authorized</h1>
 		<br/>
-		<button type="button" name="download" id="download">Download FGL Client</button>
+		<button type="button" name="download-c" id="download-c">Download FGL Client - Classic</button>
+		<button type="button" name="download-g" id="download-g">Download FGL Client - GUI</button>
 	</body>
 	<script>
-		const download = document.getElementById("download");
+		const downloadC = document.getElementById("download-c");
+		const downloadG = document.getElementById("download-g")
 		const queryString = window.location.search;
 		const urlParams = new URLSearchParams(queryString);
 		const code = urlParams.get("code");
 
-		download.addEventListener("click", (e) => {
-			window.location = "https://fglteam.com/api/v1/fglClient"
+		downloadC.addEventListener("click", (e) => {
+			window.location = "https://fglteam.com/api/v1/fglClient?code=" + code + "?version=classic"
+		})
+
+		downloadG.addEventListener("click", (e) => {
+			window.location = "https://fglteam.com/api/v1/fglClient?code=" + code + "?version=gui"
 		})
 	</script>
 	<style>

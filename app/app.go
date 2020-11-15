@@ -59,16 +59,16 @@ func (a *App) setv1Routers() {
 	a.post("/api/v1/makeann", a.makeAnnouncement)
 	a.put("/api/v1/updateannouncement/{aid}", a.updateAnnouncement)
 	a.delete("/api/v1/deleteannouncement/{aid}", a.deleteAnnouncement)
-	a.get("/api/v1/labreport/{rid}", a.getLabReport)
-	a.get("/api/v1/labreports", a.getLabReports)
-	a.post("/api/v1/makelabreport", a.makeLabReport)
-	a.put("/api/v1/updatelabreport/{rid}", a.updateLabReport)
-	a.delete("/api/v1/deletelabreport/{rid}", a.deleteLabReport)
-	a.get("/api/v1/gadgetreport/{rid}", a.getGadgetReport)
-	a.get("/api/v1/gadgetreports", a.getGadgetReports)
-	a.post("/api/v1/makegadgetreport", a.makeGadgetReport)
-	a.put("/api/v1/updategadgetreport/{rid}", a.updateGadgetReport)
-	a.delete("/api/v1/deletegadgetreport/{rid}", a.deleteGadgetReport)
+	a.get("/api/v1/discussions/{did}", a.getDiscussionDocument)
+	a.get("/api/v1/discussions", a.getDiscussionDocuments)
+	a.post("/api/v1/makediscussion", a.makeDiscussionDocument)
+	a.put("/api/v1/updatediscussion/{did}", a.updateDiscussionDocument)
+	a.delete("/api/v1/deletediscussion/{did}", a.deleteDiscussionDocument)
+	a.get("/api/v1/projects/{pid}", a.getProjectSubmission)
+	a.get("/api/v1/projects", a.getProjectSubmissions)
+	a.post("/api/v1/makeproject", a.makeProjectSubmission)
+	a.put("/api/v1/updateproject/{pid}", a.updateProjectSubmission)
+	a.delete("/api/v1/deleteproject/{pid}", a.deleteProjectSubmission)
 	a.get("/api/v1/users", a.getAllUsers)
 	a.post("/api/v1/register", a.registerUser)
 	a.post("/api/v1/login", a.userLogin)
@@ -113,7 +113,29 @@ func (a *App) serveDownload(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *App) downloadClient(w http.ResponseWriter, r *http.Request) {
-	filename := "public/fgl-client.exe"
+	code, ok := r.URL.Query()["code"]
+
+	if !ok || len(code[0]) < 1 {
+		w.Write([]byte(strconv.Itoa(http.StatusUnauthorized) + " Unauthorized"))
+		log.Println("first if")
+		return
+	}
+
+	if !handler.AuthorizeCode(a.DB, code[0]) {
+		w.Write([]byte(strconv.Itoa(http.StatusUnauthorized) + " Unauthorized"))
+		log.Println("second if")
+		return
+	}
+
+	version, ok := r.URL.Query()["version"]
+
+	filename := ""
+
+	if version[1] == "classic" {
+		filename = "public/fgl-client.exe"
+	} else if version[1] == "gui" {
+		filename = "public/fgl-gui.exe"
+	}
 
 	Openfile, err := os.Open(filename)
 	if err != nil {
@@ -197,44 +219,44 @@ func (a *App) deleteAnnouncement(w http.ResponseWriter, r *http.Request) {
 	handler.DeleteAnnouncement(a.DB, w, r)
 }
 
-func (a *App) getLabReport(w http.ResponseWriter, r *http.Request) {
-	handler.GetLabReport(a.DB, w, r)
+func (a *App) getDiscussionDocument(w http.ResponseWriter, r *http.Request) {
+	handler.GetDiscussionDocument(a.DB, w, r)
 }
 
-func (a *App) getLabReports(w http.ResponseWriter, r *http.Request) {
-	handler.GetLabReports(a.DB, w, r)
+func (a *App) getDiscussionDocuments(w http.ResponseWriter, r *http.Request) {
+	handler.GetDiscussionDocuments(a.DB, w, r)
 }
 
-func (a *App) makeLabReport(w http.ResponseWriter, r *http.Request) {
-	handler.MakeLabReport(a.DB, w, r)
+func (a *App) makeDiscussionDocument(w http.ResponseWriter, r *http.Request) {
+	handler.MakeDiscussionDocument(a.DB, w, r)
 }
 
-func (a *App) updateLabReport(w http.ResponseWriter, r *http.Request) {
-	handler.UpdateLabReport(a.DB, w, r)
+func (a *App) updateDiscussionDocument(w http.ResponseWriter, r *http.Request) {
+	handler.UpdateDiscussionDocument(a.DB, w, r)
 }
 
-func (a *App) deleteLabReport(w http.ResponseWriter, r *http.Request) {
-	handler.DeleteLabReport(a.DB, w, r)
+func (a *App) deleteDiscussionDocument(w http.ResponseWriter, r *http.Request) {
+	handler.DeleteDiscussionDocument(a.DB, w, r)
 }
 
-func (a *App) getGadgetReport(w http.ResponseWriter, r *http.Request) {
-	handler.GetGadgetReport(a.DB, w, r)
+func (a *App) getProjectSubmission(w http.ResponseWriter, r *http.Request) {
+	handler.GetProjectSubmission(a.DB, w, r)
 }
 
-func (a *App) getGadgetReports(w http.ResponseWriter, r *http.Request) {
-	handler.GetGadgetReports(a.DB, w, r)
+func (a *App) getProjectSubmissions(w http.ResponseWriter, r *http.Request) {
+	handler.GetProjectSubmissions(a.DB, w, r)
 }
 
-func (a *App) makeGadgetReport(w http.ResponseWriter, r *http.Request) {
-	handler.MakeGadgetReport(a.DB, w, r)
+func (a *App) makeProjectSubmission(w http.ResponseWriter, r *http.Request) {
+	handler.MakeProjectSubmission(a.DB, w, r)
 }
 
-func (a *App) updateGadgetReport(w http.ResponseWriter, r *http.Request) {
-	handler.UpdateGadgetReport(a.DB, w, r)
+func (a *App) updateProjectSubmission(w http.ResponseWriter, r *http.Request) {
+	handler.UpdateProjectSubmission(a.DB, w, r)
 }
 
-func (a *App) deleteGadgetReport(w http.ResponseWriter, r *http.Request) {
-	handler.DeleteGadgetReport(a.DB, w, r)
+func (a *App) deleteProjectSubmission(w http.ResponseWriter, r *http.Request) {
+	handler.DeleteProjectSubmission(a.DB, w, r)
 }
 
 func (a *App) getAllUsers(w http.ResponseWriter, r *http.Request) {
