@@ -21,7 +21,8 @@ type Config struct {
 // GetConfig loads the database configuration from the file
 func GetConfig() *Config {
 	config := Config{}
-	configFile, err := os.Open("$FGL/db/dbConfig.json")
+	fglpath := os.Getenv("FGL")
+	configFile, err := os.Open(fglpath + "/db/dbConfig.json")
 	if err != nil {
 		fmt.Println("error opening dbConfig.json:", err)
 	}

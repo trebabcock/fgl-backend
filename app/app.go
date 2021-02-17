@@ -22,8 +22,12 @@ type App struct {
 	DB     *gorm.DB
 }
 
+var fglpath string
+
 // Initialize connects to the database, migrates the database, and sets up routes
 func (a *App) Initialize(dbConfig *db.Config) {
+	fglpath = os.Getenv("FGL")
+
 	dbURI := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=%s connect_timeout=15",
 		dbConfig.Host,
 		dbConfig.Port,
@@ -91,7 +95,8 @@ func (a *App) setv1Routers() {
 }
 
 func (a *App) serveIndex(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "$FGL/public/index.html")
+
+	http.ServeFile(w, r, fglpath+"/public/index.html")
 }
 
 func (a *App) serveDownload(w http.ResponseWriter, r *http.Request) {
@@ -109,7 +114,7 @@ func (a *App) serveDownload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.ServeFile(w, r, "$FGL/public/download.html")
+	http.ServeFile(w, r, fglpath+"/public/download.html")
 }
 
 func (a *App) downloadClient(w http.ResponseWriter, r *http.Request) {
@@ -132,9 +137,9 @@ func (a *App) downloadClient(w http.ResponseWriter, r *http.Request) {
 	filename := ""
 
 	if version[1] == "classic" {
-		filename = "$FGL/public/fgl-client.exe"
+		filename = fglpath + "/public/fgl-client.exe"
 	} else if version[1] == "gui" {
-		filename = "$FGL/public/fgl-gui.exe"
+		filename = fglpath + "/public/fgl-gui.exe"
 	}
 
 	Openfile, err := os.Open(filename)
