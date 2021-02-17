@@ -19,11 +19,11 @@
 		const code = urlParams.get("code");
 
 		downloadC.addEventListener("click", (e) => {
-			window.location = "https://fglteam.com/api/v1/fglClient?code=" + code + "?version=classic"
+			window.location = "https://fglteam.com/api/v1/fglClient?code=" + code + "&version=classic"
 		})
 
 		downloadG.addEventListener("click", (e) => {
-			window.location = "https://fglteam.com/api/v1/fglClient?code=" + code + "?version=gui"
+			window.location = "https://fglteam.com/api/v1/fglClient?code=" + code + "&version=gui"
 		})
 	</script>
 	<style>

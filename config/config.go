@@ -15,7 +15,7 @@ type Config struct {
 // GetConfig loads the server configuration from the file
 func GetConfig() *Config {
 	config := Config{}
-	configFile, err := os.Open("config/config.json")
+	configFile, err := os.Open("$FGL/config/config.json")
 	if err != nil {
 		fmt.Println("error opening config.json:", err)
 	}

@@ -40,14 +40,14 @@ func AuthorizeDownload(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 }
 
 // AuthorizeCode checks if code is valid
-func AuthorizeCode(db *gorm.DB, code string) bool {
+func AuthorizeCode(db *gorm.DB, code string) error {
 
 	aut := model.Authenticator{}
 	if err := db.First(&aut, model.Authenticator{Code: code}).Error; err != nil {
-		return false
+		return err
 	}
 
-	return true
+	return nil
 }
 
 // MakeCode creates a new auth code

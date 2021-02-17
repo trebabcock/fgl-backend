@@ -91,7 +91,7 @@ func (a *App) setv1Routers() {
 }
 
 func (a *App) serveIndex(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "public/index.html")
+	http.ServeFile(w, r, "$FGL/public/index.html")
 }
 
 func (a *App) serveDownload(w http.ResponseWriter, r *http.Request) {
@@ -103,13 +103,13 @@ func (a *App) serveDownload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !handler.AuthorizeCode(a.DB, keys[0]) {
+	if err := handler.AuthorizeCode(a.DB, keys[0]).Error; err != nil {
 		w.Write([]byte(strconv.Itoa(http.StatusUnauthorized) + " Unauthorized"))
 		log.Println("second if")
 		return
 	}
 
-	http.ServeFile(w, r, "public/download.html")
+	http.ServeFile(w, r, "$FGL/public/download.html")
 }
 
 func (a *App) downloadClient(w http.ResponseWriter, r *http.Request) {
@@ -121,7 +121,7 @@ func (a *App) downloadClient(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !handler.AuthorizeCode(a.DB, code[0]) {
+	if err := handler.AuthorizeCode(a.DB, code[0]).Error; err != nil {
 		w.Write([]byte(strconv.Itoa(http.StatusUnauthorized) + " Unauthorized"))
 		log.Println("second if")
 		return
@@ -132,9 +132,9 @@ func (a *App) downloadClient(w http.ResponseWriter, r *http.Request) {
 	filename := ""
 
 	if version[1] == "classic" {
-		filename = "public/fgl-client.exe"
+		filename = "$FGL/public/fgl-client.exe"
 	} else if version[1] == "gui" {
-		filename = "public/fgl-gui.exe"
+		filename = "$FGL/public/fgl-gui.exe"
 	}
 
 	Openfile, err := os.Open(filename)
