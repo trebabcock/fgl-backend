@@ -20,6 +20,6 @@ type Project struct {
 	gorm.Model
 	Name       string   `json:"name"`
 	Lead       string   `json:"lead"`
-	Assistants []string `json:"assistants"`
-	Updates    []string `json:"updates"`
+	Assistants []string `gorm:"many2many" json:"assistants"`
+	Updates    []string `gorm:"many2many" json:"updates"`
 }

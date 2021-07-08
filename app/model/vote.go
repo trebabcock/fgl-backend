@@ -13,8 +13,8 @@ type Vote struct {
 	Title    string   `json:"title"`
 	Content  string   `json:"content"`
 	Type     string   `json:"type"`
-	Yeas     []string `json:"yeas"`
-	Nays     []string `json:"nays"`
+	Yeas     []string `gorm:"many2many" json:"yeas"`
+	Nays     []string `gorm:"many2many" json:"nays"`
 	Complete bool     `json:"complete"`
 	Passed   bool     `json:"passed"`
 	VID      int64    `gorm:"AUTO_INCREMENT" json:"vid"`
